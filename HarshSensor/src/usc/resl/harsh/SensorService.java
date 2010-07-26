@@ -9,6 +9,14 @@ import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
 
+/**
+ * This service class connects to bluetooth device and receives messages from BluetoothConnection classes using serviceHandler
+ * The data is then parsed using firefly object and then passed in processed for to the activity handler. 
+ * If any data is to be recorded, use filefly object to log the data within the handler
+ * 
+ * @author Ankit Sharma (ankit@usc.edu)
+ *
+ */
 public class SensorService extends Service
 {
 	public static final String CONST_GYROSCOPE_X = "GX";
@@ -44,6 +52,10 @@ public class SensorService extends Service
 
 	private final Handler serviceHandler = new Handler()
 	{
+		/**
+		 * Handles the message received from bluetooth connection class
+		 * This function is called by bluetooth connection class every time a packet is received
+		 */
 		public void handleMessage(Message message)
 		{
 			try
@@ -91,6 +103,11 @@ public class SensorService extends Service
 
 	}
 
+	/**
+	 * Initialize the bluetooth connection by passing the details of the device to be connected
+	 * @param deviceDetails
+	 * @param handler
+	 */
 	public void initialize(String deviceDetails, Handler handler)
 	{
 		String[] splitString = deviceDetails.split("\n");
@@ -110,7 +127,10 @@ public class SensorService extends Service
 	@Override
 	public void onDestroy()
 	{
+		// Disconnect the connection
 		myBluetoothConnection.disconnect();
+		
+		// Close the file in which log is written
 		myFireFlyDevice.fileClose();
 
 		Log.i("LocalService", "Service closed");
@@ -124,10 +144,14 @@ public class SensorService extends Service
 		return mBinder;
 	}
 
+	/**
+	 * Connects to the bluetooth device. This call should always be preceded by a call to initialize function
+	 */
 	public void connectBluetooth()
 	{
 		try
 		{
+			// Create a connection
 			myBluetoothConnection.createConnection();
 
 		} catch (Exception e)
@@ -136,13 +160,21 @@ public class SensorService extends Service
 		}
 	}
 
+	/**
+	 * Checks if device is connected or not
+	 * @return true or false indicating the connection with the device
+	 */
 	public boolean isConnected()
 	{
 		return myBluetoothConnection.isDeviceConnected();
 	}
 
+	/**
+	 * Start reading the data
+	 */
 	public void runService()
 	{
 		new Thread(myBluetoothConnection).start();
 	}
 }
+

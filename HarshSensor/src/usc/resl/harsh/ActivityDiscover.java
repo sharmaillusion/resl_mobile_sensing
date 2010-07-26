@@ -20,8 +20,7 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.Toast;
 
-public class ActivityDiscover extends ListActivity
-{
+public class ActivityDiscover extends ListActivity {
 	BluetoothAdapter mBluetoothAdapter;
 
 	// All codes that relate to BlueTooth start with 1*
@@ -41,26 +40,20 @@ public class ActivityDiscover extends ListActivity
 			BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 
 	// Create a BroadcastReceiver for ACTION_FOUND
-	private final BroadcastReceiver mReceiver = new BroadcastReceiver()
-	{
+	private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
 		@Override
-		public void onReceive(Context context, Intent intent)
-		{
+		public void onReceive(Context context, Intent intent) {
 			String action = intent.getAction();
 
 			// When discovery is started
-			if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action))
-			{
+			if (BluetoothAdapter.ACTION_DISCOVERY_STARTED.equals(action)) {
 				// Display the progress dialog
 				mProgressDialog = ProgressDialog.show(ActivityDiscover.this,
 						"Discovering Bluetooth Devices",
 						"Please wait while other bluetooth devices in range are being searched. "
 								+ "Press back to cancel discovery", true, true,
-						new OnCancelListener()
-						{
-							@Override
-							public void onCancel(DialogInterface dialog)
-							{
+						new OnCancelListener() {
+							public void onCancel(DialogInterface dialog) {
 								// Cancel the discovery. Just to be
 								// safe
 								mBluetoothAdapter.cancelDiscovery();
@@ -69,32 +62,30 @@ public class ActivityDiscover extends ListActivity
 			}
 
 			// When discovery finds a device
-			if (BluetoothDevice.ACTION_FOUND.equals(action))
-			{
+			if (BluetoothDevice.ACTION_FOUND.equals(action)) {
 				// Get the BluetoothDevice object from the Intent
 				BluetoothDevice device = intent
 						.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
 
-				if (device != null)
-				{
+				if (device != null) {
 					String name = null;
 					String address = null;
 
+					// Get device name and address
 					name = device.getName();
 					address = device.getAddress();
 
-					if (name != null && address != null)
-					{
-						if (name.startsWith("FireFly"))
-						{
+					// Check if they are not null, display them
+					if (name != null && address != null) {
+						if (name.startsWith("FireFly")) {
 							Toast.makeText(ActivityDiscover.this,
 									name + "\n" + address, Toast.LENGTH_SHORT)
 									.show();
+
 							// Add the name and address to an array adapter to
 							// show
 							// in a
 							// listView
-
 							mArrayAdapter.add(name + "\n" + address);
 						}
 					}
@@ -102,10 +93,8 @@ public class ActivityDiscover extends ListActivity
 			}
 
 			// When discovery is finished
-			if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action))
-			{
-				if (mProgressDialog != null)
-				{
+			if (BluetoothAdapter.ACTION_DISCOVERY_FINISHED.equals(action)) {
+				if (mProgressDialog != null) {
 					// Display the progress dialog
 					mProgressDialog.dismiss();
 				}
@@ -118,40 +107,45 @@ public class ActivityDiscover extends ListActivity
 
 	/** Called when the activity is first created. */
 	@Override
-	public void onCreate(Bundle savedInstanceState)
-	{
+	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_discover);
 
+		// Create a new array adapter
 		mArrayAdapter = new ArrayAdapter<String>(ActivityDiscover.this,
 				android.R.layout.simple_list_item_1);
 
+		// Set this adapter to the list view
 		setListAdapter(mArrayAdapter);
 
+		// Get refresh button from activity layout
 		btnRefresh = (Button) findViewById(R.id.buttonDiscoverRefresh);
 
-		btnRefresh.setOnClickListener(new View.OnClickListener()
-		{
-			@Override
-			public void onClick(View v)
-			{
+		// Set on click listener. to search all devices in range
+		btnRefresh.setOnClickListener(new View.OnClickListener() {
+			public void onClick(View v) {
+				// Clear previous data from adapter
 				ActivityDiscover.this.mArrayAdapter.clear();
 
+				// Start the discovery
 				ActivityDiscover.this.mBluetoothAdapter.startDiscovery();
 			}
 		});
 
+		// Get default bluetooth adapter
 		mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-		if (mBluetoothAdapter == null)
-		{
+		// If adapter is null or not presens, display appropriate message
+		if (mBluetoothAdapter == null) {
 			Toast.makeText(this, "Device does not support bluetooth",
 					Toast.LENGTH_SHORT).show();
+
+			// Finish this activity
 			this.finish();
 		}
 
-		if (!mBluetoothAdapter.isEnabled())
-		{
+		// If Bluetooth adapter is not turned on, request to turn it on
+		if (!mBluetoothAdapter.isEnabled()) {
 			Intent enableBtIntent = new Intent(
 					BluetoothAdapter.ACTION_REQUEST_ENABLE);
 			startActivityForResult(enableBtIntent,
@@ -164,21 +158,22 @@ public class ActivityDiscover extends ListActivity
 		// Clear the array and get bonded pairs
 		ActivityDiscover.this.mArrayAdapter.clear();
 
+		// Get all bonded devices (or paired devices)
+		// Paired devices are the devices such that both devices know the pass
+		// key of the other device
 		Set<BluetoothDevice> mySet = ActivityDiscover.this.mBluetoothAdapter
 				.getBondedDevices();
 
-		if (mySet.size() > 0)
-		{
+		// If any devices are found, display them, else start a new discovery
+		if (mySet.size() > 0) {
 			Iterator<BluetoothDevice> myIterator = mySet.iterator();
 
-			while (myIterator.hasNext())
-			{
+			while (myIterator.hasNext()) {
 				BluetoothDevice myDevice = myIterator.next();
 				mArrayAdapter.add(myDevice.getName() + "\n"
 						+ myDevice.getAddress());
 			}
-		} else
-		{
+		} else {
 			// Start discovery if no bonded pair is avaiable
 			ActivityDiscover.this.mBluetoothAdapter.startDiscovery();
 		}
@@ -191,33 +186,36 @@ public class ActivityDiscover extends ListActivity
 	}
 
 	@Override
-	protected void onResume()
-	{
+	protected void onResume() {
+		// Since we disabled these buttons while going to display data activity,
+		// we need to enable them when coming back
+		// Set the list view to be enabled
 		getListView().setEnabled(true);
+
+		// Set the refresh button to be enabled
 		ActivityDiscover.this.btnRefresh.setEnabled(true);
 
 		super.onResume();
 	}
 
 	@Override
-	protected void onDestroy()
-	{
+	protected void onDestroy() {
+		// Unregister the receiver from bluetooth broadcast receiver. Do not
+		// forget to write this.
 		unregisterReceiver(mReceiver);
+
+		// Cancel any discovery, just to be sure
 		mBluetoothAdapter.cancelDiscovery();
 
 		super.onDestroy();
 	}
 
 	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		if (requestCode == CODE_REQUEST_ENABLE_BLUETOOTH)
-		{
-			if (resultCode == RESULT_OK)
-			{
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		if (requestCode == CODE_REQUEST_ENABLE_BLUETOOTH) {
+			if (resultCode == RESULT_OK) {
 
-			} else if (resultCode == RESULT_CANCELED)
-			{
+			} else if (resultCode == RESULT_CANCELED) {
 				this.finish();
 			}
 		}
@@ -226,31 +224,33 @@ public class ActivityDiscover extends ListActivity
 	}
 
 	@Override
-	protected void onListItemClick(ListView l, View v, int position, long id)
-	{
+	protected void onListItemClick(ListView l, View v, int position, long id) {
+		// Disable the listview
 		l.setEnabled(false);
+
+		// Disable refresh button
 		ActivityDiscover.this.btnRefresh.setEnabled(false);
 
+		// Create new intent
 		Intent newIntent = new Intent(ActivityDiscover.this,
 				ActivityDisplayData.class);
 		newIntent.putExtra(SharedVariables.CONST_DEVICE_INFORMATION, l
 				.getItemAtPosition(position).toString());
 
+		// Start the activity
 		startActivity(newIntent);
 
 		super.onListItemClick(l, v, position, id);
 	}
 
 	@Override
-	protected void onRestoreInstanceState(Bundle state)
-	{
+	protected void onRestoreInstanceState(Bundle state) {
 		// TODO Auto-generated method stub
 		super.onRestoreInstanceState(state);
 	}
 
 	@Override
-	protected void onSaveInstanceState(Bundle outState)
-	{
+	protected void onSaveInstanceState(Bundle outState) {
 		// TODO Auto-generated method stub
 		super.onSaveInstanceState(outState);
 	}
