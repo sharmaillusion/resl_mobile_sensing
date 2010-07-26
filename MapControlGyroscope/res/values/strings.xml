@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Harsh Sensor</string>
+    <string name="button_refresh">Refresh</string>
+    <string name="button_re_connect">Reconnect</string>
+    <string name="text_size">Packet Size :</string>
+    <string name="text_message_id">Distance :</string>
+    <string name="text_battery">Speed :</string>
+    <string name="text_heart_rate">Heart Rate :</string>
+    <string name="text_heart_beat_number">Heart Beat Number :</string>
+    <string name="text_time_stamp_1">Time Stamp 1 :</string>
+    <string name="text_no_value">No Value</string>
+</resources>

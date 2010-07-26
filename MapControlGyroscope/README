@@ -1,0 +1,12 @@
+This code allows a Sparkfun device with gyroscope, accelerometer 
+and compass to connect to an android device and read data.
+It allows a user to control map by controlling the sensor. 
+This code detects only FireFly bluetooth device (which then 
+connects to Zephyr Sensor). For more specifications, email 
+at any of the following address 
+
+- Harshvardhan Vathsangam
+    hvathsangam@gmail.com
+
+- Ankit Sharma
+    ankit@usc.edu
